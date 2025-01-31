@@ -65,25 +65,30 @@ def get_answer(query: str, retriever: EnsembleRetriever) -> str:
     logging.info(f"Найдено {len(relevant_docs_data)} релевантных документов.")
 
     json_docs = json.dumps(relevant_docs_data, ensure_ascii=False)
+    
+    try:
+        # Первый запрос к LLM: получение списка ID релевантных документов
+        logging.info("Запрос к LLM: получение идентификаторов документов...")
+        id_docs_response = get_llm_response(
+            system_prompt=DOC_RETRIEVAL_PROMPT, 
+            docs=json_docs, 
+            query=query,
+            temperature=0.0,
+        )
+        logging.info(f"Полученные идентификаторы документов: {id_docs_response}")
 
-    # Первый запрос к LLM: получение списка ID релевантных документов
-    logging.info("Запрос к LLM: получение идентификаторов документов...")
-    id_docs_response = get_llm_response(
-        system_prompt=DOC_RETRIEVAL_PROMPT, 
-        docs=json_docs, 
-        query=query,
-        temperature=0.0,
-    )
-    logging.info(f"Полученные идентификаторы документов: {id_docs_response}")
-
-    # Второй запрос к LLM: генерация финального ответа
-    logging.info("Запрос к LLM: генерация финального ответа...")
-    response = get_llm_response(
-        system_prompt=ANSWER_GENERATION_PROMPT.format(retrieved_data=id_docs_response), 
-        docs=json_docs, 
-        query=query,
-        temperature=0.3,
-    )
-    logging.info(f"Ответ успешно получен: {response}")
+        # Второй запрос к LLM: генерация финального ответа
+        logging.info("Запрос к LLM: генерация финального ответа...")
+        response = get_llm_response(
+            system_prompt=ANSWER_GENERATION_PROMPT.format(retrieved_data=id_docs_response), 
+            docs=json_docs, 
+            query=query,
+            temperature=0.3,
+        )
+        logging.info(f"Ответ успешно получен: {response}")
+    
+    except Exception as e:
+        logging.error(f"Произошла ошибка: {e}. Проверьте ваш token и подключение к LLM.")
+        response = "Произошла ошибка. Проверьте ваш token и подключение к LLM."
     
     return response
