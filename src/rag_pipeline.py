@@ -42,7 +42,7 @@ def get_answer(query: str, retriever: EnsembleRetriever) -> str:
 
     Args:
         query (str): Вопрос пользователя.
-        retriever (EnsembleRetriever): Комбинированный ретривер.
+        retriever (EnsembleRetriever): Комбинированный ретривер (FAISS + BM25).
 
     Returns:
         str: Сгенерированный ответ RAG-системы.
