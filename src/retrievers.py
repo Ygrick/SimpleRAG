@@ -4,8 +4,8 @@ from langchain_community.retrievers import BM25Retriever
 from langchain_community.vectorstores import FAISS
 from langchain.retrievers import EnsembleRetriever
 from langchain.schema import Document
-from langchain_huggingface import HuggingFaceEmbeddings
-from .config import EMBEDDING_MODEL, DEVICE
+from .config import EMBEDDING_MODEL
+
 
 
 def create_retriever(documents: List[Document]) -> EnsembleRetriever:
@@ -20,14 +20,8 @@ def create_retriever(documents: List[Document]) -> EnsembleRetriever:
     """
     logging.info("Создаём векторное представление документов...")
 
-    # Загружаем модель эмбедингов
-    embedding_model = HuggingFaceEmbeddings(
-        model_name=EMBEDDING_MODEL,
-        model_kwargs={"device": DEVICE}
-    )
-
     # FAISS retriever
-    vector_store = FAISS.from_documents(documents, embedding_model)
+    vector_store = FAISS.from_documents(documents, EMBEDDING_MODEL)
     faiss_retriever = vector_store.as_retriever(
         search_type="similarity",
         search_kwargs={'k': 2}  # Количество возвращаемых документов

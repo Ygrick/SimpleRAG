@@ -26,7 +26,7 @@ def chunk_documents(documents: List[str], chunk_size: int = 1000, chunk_overlap:
     Разбивает документы на чанки.
 
     Args:
-        documents (List[Document]): Список документов.
+        documents (List[str]): Список документов.
         chunk_size (int): Размер чанка в символах.
         chunk_overlap (int): Перекрытие чанков.
 
@@ -38,9 +38,12 @@ def chunk_documents(documents: List[str], chunk_size: int = 1000, chunk_overlap:
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     chunked_documents = []
 
+    # Предобработка всех текстовых файлов\документов\текстов
     for i, doc in enumerate(documents):
         clean_doc = clean_text(doc)
+        # Создадим langchain-документ (совместимый формат для RecursiveCharacterTextSplitter)
         langchain_doc = Document(page_content=clean_doc)
+        # Разобьём длинный текст на чанки
         chunks = text_splitter.split_documents([langchain_doc])
 
         # Добавим номер документа (текста) и номер чанка как доп.информацию
