@@ -32,6 +32,7 @@ pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu121 # и
 ```bash
 streamlit run app.py
 ```
+* Первый запуск может быть долгим, ~5-10 минут (зависит от конфигурации вашего ПК и скорости интернета)
 
 ### 3. Используя Docker-контейнер
 #### 3.1 Сборка образа 
