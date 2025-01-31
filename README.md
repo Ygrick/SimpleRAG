@@ -24,7 +24,8 @@ SimpleRAG — это лёгкий Retrieval-Augmented Generation (RAG) аген�
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # Для Windows: .venv\Scripts\activate
-pip install -r requirements.txt --index-url https://download.pytorch.org/whl/cu121 # или другую необходимую cuda-версию для torch
+pip install -r requirements.txt 
+pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu121 # или другую необходимую cuda-версию для torch
 ```
 
 #### 2.2 Запуск Streamlit-приложения  
