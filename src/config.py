@@ -10,8 +10,8 @@ load_dotenv()
 DATASET = "neural-bridge/rag-dataset-1200"
 SPLIT_DATASET = "test"
 
-# Модель-LLM для генерации ответа (API)
-LLM_MODEL = "meta-llama/llama-3.1-8b-instruct:free"
+# Модель-LLM для генерации ответа
+LLM_MODEL = "meta-llama/llama-3.2-3b-instruct:free"
 
 # Загружаем модель эмбедингов
 EMBEDDING_MODEL = HuggingFaceEmbeddings(
@@ -20,6 +20,7 @@ EMBEDDING_MODEL = HuggingFaceEmbeddings(
 )
 
 # API-конфигурация к LLM
+# Можно заменить на API к вашей LLM (к примеру, развернутую с помощью vLLM)
 CLIENT = OpenAI(
     base_url="https://openrouter.ai/api/v1", 
     api_key=os.getenv("TOKEN_OPENAI")
