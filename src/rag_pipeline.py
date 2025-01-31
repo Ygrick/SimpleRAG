@@ -25,7 +25,8 @@ def get_llm_response(system_prompt: str, docs: str, query: str, temperature: flo
         {'role': 'documents', 'content': docs},
         {'role': 'user', 'content': query}
     ]
-
+    
+    # Отправляем запрос в LLM
     response = CLIENT.chat.completions.create(
         model=LLM_MODEL,
         messages=chat_history,
