@@ -16,6 +16,7 @@ def clean_text(text: str) -> str:
     Returns:
         str: Очищенный текст.
     """
+    text = re.sub(r'<[^>]+>', '', text) # Удаляем HTML-теги
     text = re.sub(r'(\r\n|\r|\n){2,}', r'\n', text)  # Удаляем лишние пустые строки
     text = re.sub(r'[ \t]+', ' ', text)  # Заменяем табуляции на пробелы
     return text.strip()
