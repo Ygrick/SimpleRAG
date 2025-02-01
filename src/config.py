@@ -1,23 +1,22 @@
 import os
 
 from dotenv import load_dotenv
-from langchain_huggingface import HuggingFaceEmbeddings
 from openai import OpenAI
 
 load_dotenv()
 
+# Кэш ответов
+ANSWER_CACHE_FILE = "./cache/answer_cache.json"
+
 # Датасет с Hugging Face
-DATASET = "neural-bridge/rag-dataset-1200"
-SPLIT_DATASET = "test"
+DATASET: str = "neural-bridge/rag-dataset-1200"
+SPLIT_DATASET: str = "test"
 
 # Модель-LLM для генерации ответа
-LLM_MODEL = "meta-llama/llama-3.2-3b-instruct:free"
+LLM_MODEL: str = "meta-llama/llama-3.2-3b-instruct:free"
 
 # Загружаем модель эмбедингов
-EMBEDDING_MODEL = HuggingFaceEmbeddings(
-    model_name="intfloat/multilingual-e5-large",
-    model_kwargs={"device": "cuda"}
-)
+EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large"
 
 # API-конфигурация к LLM
 # Можно заменить на API к вашей LLM (к примеру, развернутую с помощью vLLM)
@@ -28,7 +27,7 @@ CLIENT = OpenAI(
 
 # Создадим два промпта для уменьшения вероятности нерелевантного ответа
     # Промпт для LLM, который просит определить только релевантные документы
-DOC_RETRIEVAL_PROMPT = (
+DOC_RETRIEVAL_PROMPT: str = (
     "You are an AI assistant specialized in document retrieval. "
     "Your task is to extract only the most relevant document IDs and chunk IDs from the provided documents. "
     "Strictly follow these rules: "
@@ -41,7 +40,7 @@ DOC_RETRIEVAL_PROMPT = (
     "6. Any deviation from these rules is strictly prohibited."
 )
     # Промпт для LLM, который просит составить ответ только на релевантных документах
-ANSWER_GENERATION_PROMPT = (
+ANSWER_GENERATION_PROMPT: str = (
     "You are an assistant that answers user questions based strictly on the provided documents. "
     "Use only the content from the relevant documents and chunks listed below: "
     "{retrieved_data} "
