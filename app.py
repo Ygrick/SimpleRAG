@@ -3,11 +3,11 @@ import logging
 import streamlit as st
 from datasets import load_dataset
 
+from src.caching import load_answer_cache, save_answer_cache
 from src.chunking import chunk_documents
 from src.config import DATASET, SPLIT_DATASET
-from src.rag_pipeline import get_answer
+from src.rag_pipeline import get_answer, get_docs
 from src.retrievers import create_retriever
-
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -36,7 +36,26 @@ query = st.text_input("Введите ваш вопрос:")
 if query:
     # Обращение к RAG
     st.info("Обрабатываем запрос...")
-    answer = get_answer(query, retriever)
+
+    # Загружаем кэш ответов
+    cache = load_answer_cache()
+    if query in cache:
+        logging.info("Ответ найден в кэше, возвращаем кэшированный ответ.")
+        answer = cache[query]
+    
+    else:
+        logging.info("Ответ не найден в кэше, генерируем ответ с нуля.")
+        # Поиск релевантных документов
+        relevant_json_docs = get_docs(query, retriever)
+        
+        # Генерация ответа
+        answer = get_answer(query, relevant_json_docs)
+        
+        # Если ошибки не произошло, то сохраняем ответ в кэш
+        if answer != "Произошла ошибка.":
+            # Обновляем кэш ответов
+            cache[query] = answer
+            save_answer_cache(cache)
 
     # Вывод ответа
     st.success("Ответ:")

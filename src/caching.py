@@ -1,7 +1,9 @@
-import os
 import json
 import logging
+import os
+
 from .config import ANSWER_CACHE_FILE
+
 
 def load_answer_cache() -> dict:
     """

@@ -3,8 +3,38 @@ import logging
 
 from langchain.retrievers import EnsembleRetriever
 
-from .config import CLIENT, LLM_MODEL, DOC_RETRIEVAL_PROMPT, ANSWER_GENERATION_PROMPT
-from .caching import load_answer_cache, save_answer_cache
+from .config import (ANSWER_GENERATION_PROMPT, CLIENT, DOC_RETRIEVAL_PROMPT,
+                     LLM_MODEL)
+
+
+def get_docs(query: str, retriever: EnsembleRetriever) -> str:
+    """
+    Поиск релевантных документов.
+
+    Args:
+        query (str): Вопрос пользователя.
+        retriever (EnsembleRetriever): Комбинированный ретривер (FAISS + BM25).
+
+    Returns:
+        str: Релевантные документы в формате JSON.
+    """
+    
+    # Поиск релевантных документов
+    relevant_docs = retriever.get_relevant_documents(query)
+    
+    # Преобразуем найденные документы в нужный формат
+    relevant_docs_data = [
+        {
+            "document_id": doc.metadata.get("document_id", -1),
+            "chunk_id": doc.metadata.get("chunk_id", -1),
+            "content": doc.page_content
+        }
+        for doc in relevant_docs
+    ]
+    logging.info(f"Найдено {len(relevant_docs_data)} релевантных документов.")
+
+    json_docs = json.dumps(relevant_docs_data, ensure_ascii=False)
+    return json_docs
 
 
 def get_llm_response(system_prompt: str, docs: str, query: str, temperature: float) -> str:
@@ -38,41 +68,19 @@ def get_llm_response(system_prompt: str, docs: str, query: str, temperature: flo
     return response
 
 
-def get_answer(query: str, retriever: EnsembleRetriever) -> str:
+def get_answer(query: str, json_docs: str) -> str:
     """
     Основной RAG-конвейер: поиск документов + генерация ответа.
 
     Args:
         query (str): Вопрос пользователя.
-        retriever (EnsembleRetriever): Комбинированный ретривер (FAISS + BM25).
+        json_docs (str): Релевантные документы в формате JSON.
 
     Returns:
         str: Сгенерированный ответ RAG-системы.
     """
     logging.info(f"Запрос пользователя: {query}")
-
-    # Загружаем кэш ответов
-    cache = load_answer_cache()
-    if query in cache:
-        logging.info("Ответ найден в кэше, возвращаем кэшированный ответ.")
-        return cache[query]
-
-    # Поиск релевантных документов
-    relevant_docs = retriever.get_relevant_documents(query)
-    
-    # Преобразуем найденные документы в нужный формат
-    relevant_docs_data = [
-        {
-            "document_id": doc.metadata.get("document_id", -1),
-            "chunk_id": doc.metadata.get("chunk_id", -1),
-            "content": doc.page_content
-        }
-        for doc in relevant_docs
-    ]
-    logging.info(f"Найдено {len(relevant_docs_data)} релевантных документов.")
-
-    json_docs = json.dumps(relevant_docs_data, ensure_ascii=False)
-    
+ 
     try:
         # Первый запрос к LLM: получение списка ID релевантных документов
         logging.info("Запрос к LLM: получение идентификаторов документов...")
@@ -96,10 +104,6 @@ def get_answer(query: str, retriever: EnsembleRetriever) -> str:
     
     except Exception as e:
         logging.error(f"Произошла ошибка: {e}. Проверьте ваш token и подключение к LLM.")
-        response = "Произошла ошибка. Проверьте ваш token и подключение к LLM."
+        response = "Произошла ошибка."
     
-    # Обновляем кэш ответов
-    cache[query] = response
-    save_answer_cache(cache)
-
     return response
