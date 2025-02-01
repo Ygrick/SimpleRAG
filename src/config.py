@@ -13,7 +13,7 @@ DATASET: str = "neural-bridge/rag-dataset-1200"
 SPLIT_DATASET: str = "test"
 
 # Модель-LLM для генерации ответа
-LLM_MODEL: str = "meta-llama/llama-3.2-3b-instruct:free"
+LLM_MODEL: str = "meta-llama/llama-3.1-8b-instruct"
 
 # Модель эмбедингов для индексирования документов
 EMBEDDING_MODEL_NAME: str = "intfloat/multilingual-e5-large"
