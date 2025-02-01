@@ -36,7 +36,7 @@ def chunk_documents(documents: List[str], chunk_size: int = 1000, chunk_overlap:
     logging.info(f"Разбиваем {len(documents)} документов на чанки (размер: {chunk_size}, перекрытие: {chunk_overlap})")
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    chunked_documents = []
+    chunked_documents: List[Document] = []
 
     # Предобработка всех текстовых файлов\документов\текстов
     for i, doc in enumerate(documents):
