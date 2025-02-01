@@ -20,7 +20,7 @@ def get_docs(query: str, retriever: EnsembleRetriever) -> str:
     """
     
     # Поиск релевантных документов
-    relevant_docs = retriever.get_relevant_documents(query)
+    relevant_docs = retriever.invoke(query)
     
     # Преобразуем найденные документы в нужный формат
     relevant_docs_data = [

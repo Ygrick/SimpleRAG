@@ -7,7 +7,7 @@ from src.caching import load_answer_cache, save_answer_cache
 from src.chunking import chunk_documents
 from src.config import DATASET, SPLIT_DATASET
 from src.rag_pipeline import get_answer, get_docs
-from src.retrievers import create_retriever
+from src.retrievers import create_ensemble_retriever, create_reranked_retriever
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -26,7 +26,9 @@ def load_retriever():
     
     # Чанкуем и создаём ретривер
     chunked_docs = chunk_documents(documents)
-    return create_retriever(chunked_docs)
+    ensemble_retriever = create_ensemble_retriever(chunked_docs)
+    reranked_retriever = create_reranked_retriever(ensemble_retriever, top_n=3)
+    return reranked_retriever
 
 retriever = load_retriever()
 

@@ -1,18 +1,21 @@
 import gc
 import logging
-from typing import List
+from typing import Any, List
 
 import torch
-from langchain.retrievers import EnsembleRetriever
+from langchain.retrievers import (ContextualCompressionRetriever,
+                                  EnsembleRetriever)
+from langchain.retrievers.document_compressors import CrossEncoderReranker
 from langchain.schema import Document
+from langchain_community.cross_encoders import HuggingFaceCrossEncoder
 from langchain_community.retrievers import BM25Retriever
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 
-from .config import EMBEDDING_MODEL_NAME
+from .config import CROSS_ENCODER_MODEL_NAME, EMBEDDING_MODEL_NAME
 
 
-def create_retriever(documents: List[Document]) -> EnsembleRetriever:
+def create_ensemble_retriever(documents: List[Document]) -> EnsembleRetriever:
     """
     Создаёт EnsembleRetriever с использованием GPU для индексирования и CPU для обработки запросов.
     
@@ -71,3 +74,32 @@ def create_retriever(documents: List[Document]) -> EnsembleRetriever:
     
     logging.info("EnsembleRetriever успешно создан.")
     return ensemble_retriever
+
+
+def create_reranked_retriever(
+    retriever: EnsembleRetriever, top_n: int = 3
+) -> ContextualCompressionRetriever:
+    """
+    Оборачивает ретривер с использованием Cross-Encoder Reranker для переоценки релевантности документов.
+
+    Args:
+        retriever (EnsembleRetriever): Базовый ретривер для первоначального поиска.
+        top_n (int, optional): Количество документов, сохраняемых после переоценки. По умолчанию 3.
+
+    Returns:
+        ContextualCompressionRetriever: Ретривер с функцией переоценки релевантности документов.
+    """
+    logging.info("Инициализация модели кросс-энкодера для reranking...")
+    cross_encoder = HuggingFaceCrossEncoder(model_name=CROSS_ENCODER_MODEL_NAME)
+    
+    logging.info(f"Создаём CrossEncoderReranker с top_n=top_n...")
+    reranker = CrossEncoderReranker(model=cross_encoder, top_n=top_n)
+    
+    logging.info("Оборачиваем базовый ретривер с помощью ContextualCompressionRetriever...")
+    compression_retriever = ContextualCompressionRetriever(
+        base_compressor=reranker,
+        base_retriever=retriever
+    )
+    
+    logging.info("Ретривер с Cross-Encoder Reranking успешно создан.")
+    return compression_retriever

@@ -15,8 +15,11 @@ SPLIT_DATASET: str = "test"
 # Модель-LLM для генерации ответа
 LLM_MODEL: str = "meta-llama/llama-3.2-3b-instruct:free"
 
-# Загружаем модель эмбедингов
-EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large"
+# Модель эмбедингов для индексирования документов
+EMBEDDING_MODEL_NAME: str = "intfloat/multilingual-e5-large"
+
+# Модель-кросс-энкодера для переоценки документов
+CROSS_ENCODER_MODEL_NAME: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
 # API-конфигурация к LLM
 # Можно заменить на API к вашей LLM (к примеру, развернутую с помощью vLLM)
