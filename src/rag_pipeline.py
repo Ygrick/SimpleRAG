@@ -4,6 +4,7 @@ import logging
 from langchain.retrievers import EnsembleRetriever
 
 from .config import CLIENT, LLM_MODEL, DOC_RETRIEVAL_PROMPT, ANSWER_GENERATION_PROMPT
+from .caching import load_answer_cache, save_answer_cache
 
 
 def get_llm_response(system_prompt: str, docs: str, query: str, temperature: float) -> str:
@@ -50,6 +51,12 @@ def get_answer(query: str, retriever: EnsembleRetriever) -> str:
     """
     logging.info(f"Запрос пользователя: {query}")
 
+    # Загружаем кэш ответов
+    cache = load_answer_cache()
+    if query in cache:
+        logging.info("Ответ найден в кэше, возвращаем кэшированный ответ.")
+        return cache[query]
+
     # Поиск релевантных документов
     relevant_docs = retriever.get_relevant_documents(query)
     
@@ -91,4 +98,8 @@ def get_answer(query: str, retriever: EnsembleRetriever) -> str:
         logging.error(f"Произошла ошибка: {e}. Проверьте ваш token и подключение к LLM.")
         response = "Произошла ошибка. Проверьте ваш token и подключение к LLM."
     
+    # Обновляем кэш ответов
+    cache[query] = response
+    save_answer_cache(cache)
+
     return response
