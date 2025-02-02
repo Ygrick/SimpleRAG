@@ -88,7 +88,7 @@ def get_answer(query: str, json_docs: str) -> str:
             system_prompt=DOC_RETRIEVAL_PROMPT, 
             docs=json_docs, 
             query=query,
-            temperature=0.0,
+            temperature=0.0, # Жёсткий режим для строгого ответа
         )
         logging.info(f"Полученные идентификаторы документов: {id_docs_response}")
 
@@ -98,7 +98,7 @@ def get_answer(query: str, json_docs: str) -> str:
             system_prompt=ANSWER_GENERATION_PROMPT.format(retrieved_data=id_docs_response), 
             docs=json_docs, 
             query=query,
-            temperature=0.3,
+            temperature=0.3, # Разрешаем быть слегка креативными, для получения более живого ответа
         )
         logging.info(f"Ответ успешно получен: {response}")
     
