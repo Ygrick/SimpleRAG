@@ -15,7 +15,7 @@ COPY . .
 
 # Устанавливаем зависимости Python
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt --index-url https://download.pytorch.org/whl/cu121
+    pip install --no-cache-dir -r requirements.txt
 
 # Открываем порт для Streamlit
 EXPOSE 8501

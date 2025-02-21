@@ -92,7 +92,7 @@ def create_reranked_retriever(
     logging.info("Инициализация модели кросс-энкодера для reranking...")
     cross_encoder = HuggingFaceCrossEncoder(model_name=CROSS_ENCODER_MODEL_NAME)
     
-    logging.info(f"Создаём CrossEncoderReranker с top_n=top_n...")
+    logging.info(f"Создаём CrossEncoderReranker с top_n={top_n}...")
     reranker = CrossEncoderReranker(model=cross_encoder, top_n=top_n)
     
     logging.info("Оборачиваем базовый ретривер с помощью ContextualCompressionRetriever...")
