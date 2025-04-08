@@ -1,4 +1,5 @@
 import logging
+import mlflow
 
 import streamlit as st
 from datasets import load_dataset
@@ -8,6 +9,12 @@ from src.chunking import chunk_documents
 from src.config import DATASET, SPLIT_DATASET
 from src.rag_pipeline import get_answer, get_docs
 from src.retrievers import create_ensemble_retriever, create_reranked_retriever
+
+# Настройка LLM Tracing
+mlflow.langchain.autolog()
+mlflow.openai.autolog()
+mlflow.set_experiment("LangChain. RAG-Агент: Поиск и Генерация Ответов")
+mlflow.set_tracking_uri("http://localhost:8080")
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -47,18 +54,20 @@ if query:
     
     else:
         logging.info("Ответ не найден в кэше, генерируем ответ с нуля.")
-        # Поиск релевантных документов
-        relevant_json_docs = get_docs(query, retriever)
         
-        # Генерация ответа
-        answer = get_answer(query, relevant_json_docs)
-        
+        with mlflow.start_run():
+            # Поиск релевантных документов
+            relevant_docs = get_docs(query, retriever)
+            
+            # Генерация ответа
+            answer = get_answer(query, relevant_docs)
+            
         # Если ошибки не произошло, то сохраняем ответ в кэш
         if answer != "Произошла ошибка.":
             # Обновляем кэш ответов
             cache[query] = answer
             save_answer_cache(cache)
-
+        
     # Вывод ответа
     st.success("Ответ:")
     st.write(answer)
