@@ -6,3 +6,4 @@ openai==1.60.1
 streamlit==1.41.1
 faiss-cpu==1.10.0
 rank_bm25==0.2.2
+logfire==3.12.0

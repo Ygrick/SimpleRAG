@@ -2,11 +2,12 @@ import json
 import logging
 
 from langchain.retrievers import EnsembleRetriever
+import logfire
 
 from .config import (ANSWER_GENERATION_PROMPT, CLIENT, DOC_RETRIEVAL_PROMPT,
                      LLM_MODEL)
 
-
+@logfire.instrument()
 def get_docs(query: str, retriever: EnsembleRetriever) -> str:
     """
     Поиск релевантных документов.
@@ -36,7 +37,7 @@ def get_docs(query: str, retriever: EnsembleRetriever) -> str:
     json_docs = json.dumps(relevant_docs_data, ensure_ascii=False)
     return json_docs
 
-
+@logfire.instrument()
 def get_llm_response(system_prompt: str, docs: str, query: str, temperature: float) -> str:
     """
     Отправляет запрос в LLM, используя заданный системный промпт.
@@ -67,7 +68,7 @@ def get_llm_response(system_prompt: str, docs: str, query: str, temperature: flo
     
     return response
 
-
+@logfire.instrument()
 def get_answer(query: str, json_docs: str) -> str:
     """
     Основной RAG-конвейер: поиск документов + генерация ответа.

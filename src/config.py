@@ -2,8 +2,15 @@ import os
 
 from dotenv import load_dotenv
 from openai import OpenAI
+import logfire
 
 load_dotenv()
+
+# Настройка Logfire
+TOKEN_LOGFIRE = os.getenv("LOGFIRE_TOKEN")
+logfire.configure(
+    token=TOKEN_LOGFIRE,
+)
 
 # Кэш ответов
 ANSWER_CACHE_FILE = "./cache/answer_cache.json"
@@ -13,7 +20,7 @@ DATASET: str = "neural-bridge/rag-dataset-1200"
 SPLIT_DATASET: str = "test"
 
 # Модель-LLM для генерации ответа
-LLM_MODEL: str = "meta-llama/llama-3.1-8b-instruct"
+LLM_MODEL: str = "qwen/qwen-2.5-7b-instruct:free"
 
 # Модель эмбедингов для индексирования документов
 EMBEDDING_MODEL_NAME: str = "intfloat/multilingual-e5-large"
