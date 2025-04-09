@@ -4,7 +4,7 @@ import logging
 from langchain.retrievers import EnsembleRetriever
 
 from .config import (ANSWER_GENERATION_PROMPT, CLIENT, DOC_RETRIEVAL_PROMPT,
-                     LLM_MODEL)
+                     LLM_MODEL, langfuse_handler)
 
 
 def get_docs(query: str, retriever: EnsembleRetriever) -> str:
@@ -20,7 +20,7 @@ def get_docs(query: str, retriever: EnsembleRetriever) -> str:
     """
     
     # Поиск релевантных документов
-    relevant_docs = retriever.invoke(query)
+    relevant_docs = retriever.invoke(query, config={"callbacks": [langfuse_handler]})
     
     # Преобразуем найденные документы в нужный формат
     relevant_docs_data = [

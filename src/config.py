@@ -1,9 +1,17 @@
 import os
 
 from dotenv import load_dotenv
-from openai import OpenAI
+# from openai import OpenAI
+from langfuse.openai import OpenAI
+from langfuse.callback import CallbackHandler
 
 load_dotenv()
+
+langfuse_handler = CallbackHandler(
+    secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
+    public_key=os.getenv("LANGFUSE_PUBLIC_KEY"),
+    host=os.getenv("LANGFUSE_HOST"),
+)
 
 # Кэш ответов
 ANSWER_CACHE_FILE = "./cache/answer_cache.json"
