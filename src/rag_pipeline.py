@@ -4,8 +4,7 @@ import logging
 from langchain.retrievers import EnsembleRetriever
 
 from .config import (ANSWER_GENERATION_PROMPT, CLIENT, DOC_RETRIEVAL_PROMPT,
-                     LLM_MODEL)
-
+                     LLM_MODEL, opik_tracer)
 
 def get_docs(query: str, retriever: EnsembleRetriever) -> str:
     """
@@ -20,7 +19,7 @@ def get_docs(query: str, retriever: EnsembleRetriever) -> str:
     """
     
     # Поиск релевантных документов
-    relevant_docs = retriever.invoke(query)
+    relevant_docs = retriever.invoke(query, callbacks=[opik_tracer])
     
     # Преобразуем найденные документы в нужный формат
     relevant_docs_data = [
@@ -53,19 +52,27 @@ def get_llm_response(system_prompt: str, docs: str, query: str, temperature: flo
     # Формируем контекст для LLM
     chat_history = [
         {'role': 'system', 'content': system_prompt},
-        {'role': 'documents', 'content': docs},
+        {'role': 'system', 'content': docs},
         {'role': 'user', 'content': query}
     ]
     
     # Отправляем запрос в LLM
-    response = CLIENT.chat.completions.create(
+    # response = CLIENT.chat.completions.create(
+    #     model=LLM_MODEL,
+    #     messages=chat_history,
+    #     temperature=temperature,
+    #     max_tokens=2048
+    # ).choices[0].message.content
+
+    response = CLIENT.invoke(
+        chat_history,
         model=LLM_MODEL,
-        messages=chat_history,
         temperature=temperature,
         max_tokens=2048
-    ).choices[0].message.content
-    
-    return response
+    )
+
+    return response.content
+
 
 
 def get_answer(query: str, json_docs: str) -> str:

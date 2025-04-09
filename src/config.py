@@ -1,9 +1,12 @@
 import os
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from langchain_openai import ChatOpenAI as OpenAI
 
 load_dotenv()
+
+from opik.integrations.langchain import OpikTracer
+opik_tracer = OpikTracer()
 
 # Кэш ответов
 ANSWER_CACHE_FILE = "./cache/answer_cache.json"
@@ -25,7 +28,8 @@ CROSS_ENCODER_MODEL_NAME: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 # Можно заменить на API к вашей LLM (к примеру, развернутую с помощью vLLM)
 CLIENT = OpenAI(
     base_url="https://openrouter.ai/api/v1", 
-    api_key=os.getenv("TOKEN_OPENAI")
+    api_key=os.getenv("TOKEN_OPENAI"), 
+    callbacks=[opik_tracer]
 )
 
 # Создадим два промпта для уменьшения вероятности нерелевантного ответа
